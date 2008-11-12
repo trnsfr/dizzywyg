@@ -2,26 +2,30 @@
 // =======Dizzywyg CLASS=======
 var Dizzywyg = Class.create({
     initialize: function(element) {
+      this.id = element.id;
       this.textarea = element;
       this.create_elements();
       this.insert_content();
       this.insert_stylesheet();
       this.insert_iframe_content();
-      this.toolbar = new Toolbar();
+      this.toolbar = new Toolbar(this);
       this.init_edit();
       this.show();
     },
     
     create_elements: function() {
-      this.div = Builder.node('div', {id:"diz_container",style:'display:none;'},[
-        this.iframe      = Builder.node('iframe', {id:'diz_iframe'}),
-        this.input       = Builder.node('input', {id:'diz_input'}),
-        this.extra_input = Builder.node('input', {id:'diz_extra_input',style:'display:none;'}, true)
+      this.div = Builder.node('div', {id:this.custom_id('container'),class:"dizzy_container",style:'display:none;'},[
+        this.iframe      = Builder.node('iframe', {id:this.custom_id('iframe'),class:"dizzy_iframe"}),
+        this.input       = Builder.node('input', {id:this.custom_id('input'),type:'hidden'}),
+        this.extra_input = Builder.node('input', {id:this.custom_id('extra_input'),type:'hidden'}, true)
       ]);
       this.input.value = this.textarea.value;
       this.textarea.replace(this.div);
     },
     
+    custom_id: function(value) {
+      return "dizzy_" +value+ + '_' +this.id;
+    },    
     
     detect_paste: function() {
       console.log('detected paste!');
@@ -49,7 +53,7 @@ var Dizzywyg = Class.create({
     },
     
     stylesheet: function() {
-      return "css/widgContent.css";
+      return "css/dizzy_content.css";
     },
     
     template: function() {
@@ -58,7 +62,7 @@ var Dizzywyg = Class.create({
     			<head>\
     				INSERT:STYLESHEET:END\
     			</head>\
-    			<body id="iframeBody">\
+    			<body id="iframe_body">\
     				INSERT:CONTENT:END\
     			</body>\
     		</html>\
@@ -88,6 +92,10 @@ var FireFox = Class.create(Dizzywyg, {
     
     insert_stylesheet: function() {
       this.template = this.template.replace(/INSERT:STYLESHEET:END/, '');
+    },
+    
+    get_selection: function() {
+      return this.iframe.contentWindow.getSelection();
     }
 });
 // ==============================
@@ -107,18 +115,69 @@ var IE = Class.create(Dizzywyg, {
     
     insert_stylesheet: function() {
       this.template = this.template.replace(/INSERT:STYLESHEET:END/, '<link rel="stylesheet" type="text/css" href="' + this.stylesheet() + '"></link>');
+    },
+    
+    get_selection: function() {
+      return this.iframe.contentWindow.document.selection.createRange().text;
     }
 });
 // ==============================
 // ==============================
 // =======Toolbar CLASS=======
 var Toolbar = Class.create({
-    initialize: function() {
+    initialize: function(editor) {
+      this.editor = editor;
+      this.create_elements();
     },
     
     check_state: function() {
       console.log('checked');
+    },
+    
+    create_elements: function() {
+      var self = this;
+      this.ul = Builder.node('ul', {class:"dizzy_toolbar"});
+      ['bold', 'italic'].each(function(e){ new ToolbarButton(self, e) });
+      this.editor.iframe.insert({before:this.ul});
     }
+    
+});
+// ==================================
+// ==================================
+// =======ToolbarButton CLASS=======
+var ToolbarButton = Class.create({
+    initialize: function(toolbar, kind) {
+      this.toolbar = toolbar;
+      this.editor = toolbar.editor;
+      this.kind = kind;
+      this.create_elements();
+      this.a.onclick = this.edit.bindAsEventListener(this);
+    },
+    
+    bold: function() {
+      var selection = this.editor.get_selection();
+      alert(selection);
+    },
+    
+    check_state: function() {
+      console.log('checked');
+    },
+    
+    create_elements: function() {
+      this.li = Builder.node('li', {class:this.kind+' button'}, [
+        this.a  = Builder.node('a', this.kind)
+      ]);
+      this.toolbar.ul.insert(this.li);
+    },
+    
+    edit: function(){
+      return eval('this.'+this.kind+'()');
+    },
+    
+    italic: function() {
+      alert('italic!');
+    }
+    
 });
 
 document.observe('dom:loaded', function() {

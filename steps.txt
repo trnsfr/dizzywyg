@@ -20,14 +20,14 @@ Notes:
 
 
 3. Toolbar init(editor)
-- create ul
-- add li buttons - bold, italic, un/ordered_list, link, image, h1-10, style, html_source
+# - create ul
+# - add li buttons - bold, italic, un/ordered_list, link, image, h1-10, style, html_source
 - needs enable/disable function
 - needs to turn on any active buttons by checking state
 
 
 4. Toolbar button init(kind)
-- needs mouseover, onclick, action, id
+# - needs mouseover, onclick, action, id
 - needs to know when it's active/on and be able to turn off
 - needs a bunch of actions defined
 
