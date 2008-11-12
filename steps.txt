@@ -1,0 +1,45 @@
+Notes: 
+- Maybe subclass Main Editor for IE, Safari, and Firefox, but wait to see if prototype does most of this.
+
+
+1. Init
+- onDomLoad (don't overwrite other onload functions)
+- Detect whether IE, Firefox, or Safari
+- See if design_mode is available (if it's not fuckem?)
+# - Find every textarea with class dizzywyg and replace with Dizzywygs
+
+2. Dizzywgy init(element)
+- Set timeout maybe
+# - create div, iframe, input(type:hidden, value:textarea.value), extra_input(type:hidden, value:true) (give them uniq ids maybe)
+- set attributes: {locked:false, paste_content:'', wysiwyg:true}
+- toolbar = toolbar.new(self)
+# - Fill the editor with old content this.writeDocument(this.input.value)
+# - make it editable, initEdit()
+- change form's onsubmit()
+-! Don't get input.widgEditorObject = this or this.theTextarea.parentNode.replaceChild(this.theContainer, this.theTextarea);
+
+
+3. Toolbar init(editor)
+- create ul
+- add li buttons - bold, italic, un/ordered_list, link, image, h1-10, style, html_source
+- needs enable/disable function
+- needs to turn on any active buttons by checking state
+
+
+4. Toolbar button init(kind)
+- needs mouseover, onclick, action, id
+- needs to know when it's active/on and be able to turn off
+- needs a bunch of actions defined
+
+
+5. init_edit
+# - iframe.design_mode = on (catch with timeout for mozilla)
+- convert spans
+# - show(); the div and textarea
+# - add event listeners (keyup, mouseup = check_state), (keydown = clean_paste)
+- this.locked = false
+
+
+6. Cleaner init
+- Validate elements
+- clean on paste if confirm
