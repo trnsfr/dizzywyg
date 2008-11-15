@@ -52,21 +52,17 @@
 
 .dizzy_toolbar li.button.link a   { background-image: url(../images/link.gif); }
 
-.dizzy_toolbar li.button.ol a     { background-image: url(../images/ol.gif); }
+.dizzy_toolbar li.button.orderedlist a     { background-image: url(../images/ol.gif); }
 
-.dizzy_toolbar li.button.ul a     { background-image: url(../images/ul.gif); }
+.dizzy_toolbar li.button.unorderedlist a     { background-image: url(../images/ul.gif); }
 
 .dizzy_toolbar li.button.image a  { background-image: url(../images/image.gif); }
 
 .dizzy_toolbar li.button.html a   { background-image: url(../images/html.gif); }
 
-.dizzy_source a {
-	background-image: url(../images/empty.gif);
-	cursor: default;
-}
+.dizzy_source a { background-image: url(../images/empty.gif);	cursor: default; }
 
-.dizzy_source li.on a, 
-.dizzy_source li.on a:hover { background-position: 0 0; }
+.dizzy_source li.on a, .dizzy_source li.on a:hover { background-position: 0 0; }
 
 .dizzy_source .dizzy_toolbar li.button.html { background-image: url(../images/editor.gif); }
 
@@ -89,15 +85,9 @@
 	background-repeat: repeat-x;
 }
 
-ul.dizzy_toolbar {
-  
-  margin-left:0;
-}
+ul.dizzy_toolbar { margin-left:0; }
 
-* html .dizzy_toolbar
-{
-	width: auto;
-}
+* html .dizzy_toolbar {	width: auto; }
 
 .dizzy_toolbar li
 {
@@ -119,7 +109,6 @@ ul.dizzy_toolbar {
 {
 	clear: left;
 	width: 100%;
-	border:0;
 	border-top-width: 1px;
 }
 
@@ -132,6 +121,3 @@ ul.dizzy_toolbar {
 	padding: 0;
 }
 
-.dizzy_container {
-  width: 500px;
-}
