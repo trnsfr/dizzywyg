@@ -1,21 +1,3 @@
-/*
-** <div id="ORIGINAL_IDWidgContainer" class="dizzy_Container">
-**     <ul id="ORIGINAL_IDWidgtoolbar" class="dizzy_toolbar">
-**         <li id="BUTTON_ID" class="dizzy_EditButton">
-**             <a></a>
-**         </li>
-**         <li class="dizzy_EditSelect">
-**             <select>
-**             </select>
-**         </li>
-**     </ul>
-**     <iframe id="ORIGINAL_IDWidgiframe" class="dizzy_iframe">
-**     </iframe>
-**     <textarea id="ORIGINAL_IDWidgTextarea" class="dizzy_Editor">
-**     </textarea>
-** </div>
-*/
-
 .dizzy_toolbar a {  
 	display: block;
 	width: 20px;
@@ -101,7 +83,9 @@ ul.dizzy_toolbar { margin-left:0; }
 }
 
 
-
+textarea.dizzywyg {
+  width: 100%;
+}
 
 /* EDITING AREA */
 
