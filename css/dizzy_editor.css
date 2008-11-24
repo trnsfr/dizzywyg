@@ -42,6 +42,8 @@
 
 .dizzy_toolbar li.button.html a   { background-image: url(../images/html.gif); }
 
+.dizzy_toolbar li.button.css a   { background-image: url(../images/css.gif); }
+
 .dizzy_source a { background-image: url(../images/empty.gif);	cursor: default; }
 
 .dizzy_source li.on a, .dizzy_source li.on a:hover { background-position: 0 0; }

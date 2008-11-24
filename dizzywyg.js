@@ -6,17 +6,31 @@ var DizzyEditor = Class.create({
       this.id = element.id;
       this.textarea = element;
       this.create_elements();
-      this.toolbar = new Toolbar(this);
       this.build_iframe();
+      this.toolbar = new Toolbar(this);
+      this.init_edit();
       this.div.show();
     },
     
+    stylesheet: "css/dizzy_content.css",
+    
+    template: '\
+  		<html>\
+  			<head>\
+  			  INSERT:PROTOTYPE:END\
+  				INSERT:STYLESHEET:END\
+  			</head>\
+  			<body id="iframe_body">\
+  				INSERT:CONTENT:END\
+  			</body>\
+  		</html>\
+  	',
+    
     build_iframe: function() {
       this.insert_content();
-      this.insert_stylesheet();
+      this.insert_scripts();
       this.insert_iframe_content();
-      this.create_stylesheet();
-      this.init_edit();
+      this.create_includes();
     },
     
     create_elements: function() {
@@ -29,7 +43,7 @@ var DizzyEditor = Class.create({
       this.textarea.replace(this.div);
     },
     
-    create_stylesheet: function() {
+    create_includes: function() {
       // abstract method 
     },
     
@@ -54,17 +68,13 @@ var DizzyEditor = Class.create({
     },
     
     insert_content: function() {
-      this.template_html = this.template().replace(/INSERT:CONTENT:END/, this.textarea.value);
+      this.template_html = this.template.replace(/INSERT:CONTENT:END/, this.textarea.value);
     },
     
     insert_iframe_content: function() {
       this.iframe.contentWindow.document.open();
     	this.iframe.contentWindow.document.write(this.template_html);
     	this.iframe.contentWindow.document.close();
-    },
-    
-    stylesheet: function() {
-      return "css/dizzy_content.css";
     },
     
     switch_to_html: function() {
@@ -81,20 +91,8 @@ var DizzyEditor = Class.create({
       this.textarea.value = this.input.value;
       this.div.replaceChild(this.iframe, this.textarea);
       this.build_iframe();
+      this.init_edit();
 			this.toolbar.toggle_enable();
-    },
-    
-    template: function() {
-      return '\
-    		<html>\
-    			<head>\
-    				INSERT:STYLESHEET:END\
-    			</head>\
-    			<body id="iframe_body">\
-    				INSERT:CONTENT:END\
-    			</body>\
-    		</html>\
-    	';
     },
     
     update_input: function() {
@@ -118,20 +116,23 @@ var FirefoxEditor = Class.create(DizzyEditor, {
   		this.iframe.contentWindow.document.addEventListener("keydown", function(e){self.detect_paste(e); return true;}, false);
     },
     
-    create_stylesheet: function() {
-      var stylesheet = Builder.node('link', {rel:"stylesheet",type:'text/css',href:this.stylesheet()});
+    create_includes: function() {
+      var stylesheet = Builder.node('link', {rel:"stylesheet",type:'text/css',href:this.stylesheet});
+      var javascript = Builder.node('script', {src:"lib/prototype.js",type:'text/javascript'});
       this.iframe.contentWindow.document.getElementsByTagName("head")[0].appendChild(stylesheet);
+      this.iframe.contentWindow.document.getElementsByTagName("head")[0].appendChild(javascript);
     },
     
-    insert_stylesheet: function() {
-      this.template_html = this.template_html.replace(/INSERT:STYLESHEET:END/, '');
+    insert_scripts: function() {
+      this.template_html = this.template_html.replace(/INSERT:STYLESHEET:END/, '').replace(/INSERT:PROTOTYPE:END/, '');
     },
     
     get_selection: function() {
       return this.iframe.contentWindow.getSelection();
     },
 
-    get_selection_parent: function(selection) {
+    get_selection_parent: function() {
+     var selection = this.get_selection();
      parent = selection.getRangeAt(0).commonAncestorContainer;
      while (parent.nodeType == 3)	{	parent = parent.parentNode;	}
      return parent;
@@ -152,15 +153,17 @@ var IeEditor = Class.create(DizzyEditor, {
   		this.iframe.contentWindow.document.attachEvent("onkeydown", function(e){self.detect_paste(e); return true;}, false);
     },
     
-    insert_stylesheet: function() {
-      this.template_html = this.template_html.replace(/INSERT:STYLESHEET:END/, '<link rel="stylesheet" type="text/css" href="' + this.stylesheet() + '"></link>');
+    insert_scripts: function() {
+      this.template_html = this.template_html.replace(/INSERT:STYLESHEET:END/, '<link rel="stylesheet" type="text/css" href="' + this.stylesheet + '"></link>');
+      this.template_html = this.template_html.replace(/INSERT:PROTOTYPE:END/, '<script type="text/javascript" src="lib/prototype.js"></script>');
     },
     
     get_selection: function() {
       return this.iframe.contentWindow.document.selection;
     },
     
-    get_selection_parent: function(selection) {
+    get_selection_parent: function() {
+     var selection = this.get_selection();
      parent = selection.createRange().parentElement();
      while (parent.nodeType == 3)	{	parent = parent.parentNode;	}
      return parent;
@@ -184,8 +187,7 @@ var Toolbar = Class.create({
       if (!resubmit) { setTimeout(function(){self.check_state(true); return true;}, 500) };
     	this.buttons.each(function(b){ b.li.removeClassName('on') })
     	
-      var selection = this.editor.get_selection();
-      var parent = this.editor.get_selection_parent(selection);
+      var parent = this.editor.get_selection_parent();
       var element = new DizzyElement(parent, self);
       
       element.get_style().each(function(e){ self.buttons.detect(function(b){ return b.kind == e }).set_state('on') });
@@ -193,8 +195,9 @@ var Toolbar = Class.create({
     
     create_buttons: function() {
       var self = this;
+      var buttons = ['bold','italic','orderedlist','unorderedlist','image','link','html', 'css'];
       this.ul = Builder.node('ul', {class:"dizzy_toolbar"});
-      ['bold','italic','orderedlist','unorderedlist','image','link','html'].each(function(e){ self.buttons.push(new ToolbarButton(self, e)) });
+      this.buttons = buttons.map(function(e){ return new ToolbarButton(self, e) });
       this.editor.iframe.insert({before:this.ul});
     },
     
@@ -236,6 +239,22 @@ var ToolbarButton = Class.create({
     create_elements: function() {
       this.li = Builder.node('li', {class:this.kind+' button'}, [ this.a  = Builder.node('a', this.kind) ]);
       this.toolbar.ul.insert(this.li);
+    },
+    
+    
+    css: function(){
+      var element = this.editor.get_selection_parent();
+      var value = this.toolbar.select.selected().replace(/^\./, '');
+      if (element.id != "iframe_body"){
+        if (element.className.match(value)) {
+          element.className -= value;
+        } else {
+          element.className += ' ' +value;
+        }
+      } else {
+        var selection = this.editor.get_selection();
+        console.log(selection);
+      }
     },
     
     edit: function() {
@@ -280,8 +299,7 @@ var ToolbarSelect = Class.create({
     initialize: function(toolbar) {
       this.toolbar = toolbar;
       this.editor = toolbar.editor;
-      this.populate_rules();
-      this.create_elements();
+      this.write_html();
     },
     
     create_elements: function() {
@@ -294,8 +312,23 @@ var ToolbarSelect = Class.create({
       this.toolbar.buttons.last().li.insert({after:this.li});
     },
 
-    populate_rules: function() {
-      this.rules = $A(document.styleSheets[0].cssRules).select(function(rule){ return rule.selectorText.match(/^\./) });      
+    populate_rules: function() {      
+      var rules = this.editor.iframe.contentWindow.document.styleSheets[0].cssRules;
+      this.rules = $A(rules).select(function(rule){ return rule.selectorText.match(/^\./) });
+    },
+    
+    write_html: function() {
+      var self = this;
+      try	{
+        this.populate_rules();
+        this.create_elements();
+      }	catch (e){
+        setTimeout(function(){self.write_html();}, 250);return false;
+      }
+    },
+    
+    selected: function() {
+     return $F(this.select);
     }
 });
 // ==================================
