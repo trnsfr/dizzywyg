@@ -6,8 +6,8 @@ var DizzyEditor = Class.create({
       this.id = element.id;
       this.textarea = element;
       this.create_elements();
-      this.build_iframe();
       this.toolbar = new Toolbar(this);
+      this.build_iframe();
       this.div.show();
     },
     
@@ -173,7 +173,8 @@ var Toolbar = Class.create({
     initialize: function(editor) {
       this.buttons = new Array();
       this.editor = editor;
-      this.create_elements();
+      this.create_buttons();
+      this.create_select();
     },
     
     check_state: function(resubmit) {
@@ -190,11 +191,15 @@ var Toolbar = Class.create({
       element.get_style().each(function(e){ self.buttons.detect(function(b){ return b.kind == e }).set_state('on') });
     },
     
-    create_elements: function() {
+    create_buttons: function() {
       var self = this;
       this.ul = Builder.node('ul', {class:"dizzy_toolbar"});
       ['bold','italic','orderedlist','unorderedlist','image','link','html'].each(function(e){ self.buttons.push(new ToolbarButton(self, e)) });
       this.editor.iframe.insert({before:this.ul});
+    },
+    
+    create_select: function() {
+      this.select = new ToolbarSelect(this);
     },
     
     toggle_enable: function() {
@@ -270,7 +275,32 @@ var ToolbarButton = Class.create({
 });
 // ==================================
 // ==================================
-// =======ToolbarButton CLASS=======
+// =======ToolbarSelect CLASS=======
+var ToolbarSelect = Class.create({
+    initialize: function(toolbar) {
+      this.toolbar = toolbar;
+      this.editor = toolbar.editor;
+      this.populate_rules();
+      this.create_elements();
+    },
+    
+    create_elements: function() {
+      var self = this;
+      this.li = Builder.node('li', [ this.select  = Builder.node('select', [
+        Builder.node('option', 'Please Select a rule'),
+        self.rules.map(function(rule){ return Builder.node('option', {value:rule.selectorText}, rule.selectorText); })
+        ]) 
+      ]);
+      this.toolbar.buttons.last().li.insert({after:this.li});
+    },
+
+    populate_rules: function() {
+      this.rules = $A(document.styleSheets[0].cssRules).select(function(rule){ return rule.selectorText.match(/^\./) });      
+    }
+});
+// ==================================
+// ==================================
+// =======DizzyElement CLASS=======
 var DizzyElement = Class.create({
     initialize: function(element, toolbar) {
       this.element = element;

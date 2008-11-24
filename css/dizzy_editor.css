@@ -61,10 +61,8 @@
 	width: 100%;
 	height: 34px;
 	margin: 0;
-	padding: 0 0 0 2px;
+	padding: 0;
 	border: 1px solid #CCCCCC;
-	background-image: url(../images/toolbar_bg.gif);
-	background-repeat: repeat-x;
 }
 
 ul.dizzy_toolbar { margin-left:0; }
@@ -93,7 +91,9 @@ textarea.dizzywyg {
 {
 	clear: left;
 	width: 100%;
-	border-top-width: 1px;
+	border-width: 1px;
+	border-left-color: #ccc;
+	border-top-color: #ccc;
 }
 
 .dizzy_container textarea.dizzy_editor
